@@ -3,7 +3,6 @@ package com.chhuang.lingaoqiming.data;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteTableLockedException;
 import android.provider.BaseColumns;
 
 /**
@@ -13,9 +12,9 @@ import android.provider.BaseColumns;
  * @author chhuang@microsoft.com
  */
 public class ArticleDatabaseHelper extends SQLiteOpenHelper {
-    public static final  String DB_NAME = "article.db";
-    public static final  int    VERSION = 1;
-    private final static String TAG     = ArticleDatabaseHelper.class.getName();
+    public static final String DB_NAME = "article.db";
+    public static final int VERSION = 1;
+    private final static String TAG = ArticleDatabaseHelper.class.getName();
 
     public ArticleDatabaseHelper(
             Context context) {
@@ -32,19 +31,21 @@ public class ArticleDatabaseHelper extends SQLiteOpenHelper {
     }
 
     public static class ArticleInfo implements BaseColumns {
+        public static final String TABLE_NAME = "articles";
+        public static final String ID = "id";
+        public static final String TITLE = "title";
+        public static final String CONTENT = "content";
+        public static final String URL = "url";
+        public static final String TIME = "time";
+        public static final SQLiteTable TABLE =
+                new SQLiteTable(TABLE_NAME)
+                        .addColumn(ID, Column.DataType.INTEGER)
+                        .addColumn(TITLE, Column.DataType.TEXT)
+                        .addColumn(CONTENT, Column.DataType.BLOB)
+                        .addColumn(URL, Column.DataType.TEXT)
+                        .addColumn(TIME, Column.DataType.INTEGER);
+
         private ArticleInfo() {
         }
-
-        public static final String TABLE_NAME = "articles";
-        public static final String ID         = "id";
-        public static final String TITLE      = "title";
-        public static final String CONTENT    = "content";
-        public static final String TIME       = "time";
-
-        public static final SQLiteTable TABLE = new SQLiteTable(TABLE_NAME).addColumn(ID, Column.DataType.INTEGER)
-                                                                           .addColumn(TITLE, Column.DataType.TEXT)
-                                                                           .addColumn(CONTENT, Column.DataType.BLOB)
-                                                                           .addColumn(TIME, Column.DataType.INTEGER);
-
     }
 }

@@ -7,8 +7,8 @@ package com.chhuang.lingaoqiming.data;
  * @author chhuang@microsoft.com
  */
 public class Column {
-    private String   name;
-    private String   constraint;
+    private String name;
+    private String constraint;
     private DataType type;
 
     public Column(String name, String constraint, DataType type) {

@@ -8,11 +8,11 @@ import com.android.volley.toolbox.StringRequest;
 import java.io.UnsupportedEncodingException;
 
 /**
-* Date: 2014/5/26
-* Time: 11:10
-*
-* @author chhuang@microsoft.com
-*/
+ * Date: 2014/5/26
+ * Time: 11:10
+ *
+ * @author chhuang@microsoft.com
+ */
 public class LingaoqimingRequest extends StringRequest {
     public LingaoqimingRequest(
             String url,

@@ -13,7 +13,7 @@ import java.util.List;
  * @author chhuang@microsoft.com
  */
 public class SQLiteTable {
-    private String       tableName;
+    private String tableName;
     private List<Column> columnDefinitions;
 
     public SQLiteTable(String tableName) {
@@ -34,6 +34,7 @@ public class SQLiteTable {
     public SQLiteTable addColumn(String name, Column.DataType type) {
         return addColumn(name, null, type);
     }
+
     public void create(SQLiteDatabase db) {
         String formatter = " %s";
         StringBuilder stringBuilder = new StringBuilder();

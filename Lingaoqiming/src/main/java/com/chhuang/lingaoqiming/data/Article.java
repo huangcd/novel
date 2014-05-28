@@ -13,7 +13,7 @@ public class Article implements Parcelable {
     public final static Creator<Article> CREATOR = new Creator<Article>() {
         @Override
         public Article createFromParcel(Parcel source) {
-            Integer chapterNumber = (Integer) source.readValue(Integer.class.getClassLoader());
+            int chapterNumber = source.readInt();
             String title = (String) source.readValue(String.class.getClassLoader());
             String url = (String) source.readValue(String.class.getClassLoader());
             return new Article(chapterNumber, title, url);
@@ -24,7 +24,12 @@ public class Article implements Parcelable {
             return new Article[size];
         }
     };
-    private int    chapterNumber;
+    /**
+     * 已读字数
+     */
+    private int offset;
+    private String content;
+    private int chapterNumber;
     private String title;
     private String url;
 
@@ -32,6 +37,22 @@ public class Article implements Parcelable {
         this.chapterNumber = chapterNumber;
         this.title = title;
         this.url = url;
+    }
+
+    public int getOffset() {
+        return offset;
+    }
+
+    public void setOffset(int offset) {
+        this.offset = offset;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public String getUrl() {
@@ -53,7 +74,7 @@ public class Article implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeValue(chapterNumber);
+        dest.writeInt(chapterNumber);
         dest.writeValue(title);
         dest.writeValue(url);
     }

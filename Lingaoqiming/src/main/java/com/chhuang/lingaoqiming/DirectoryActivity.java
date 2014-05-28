@@ -45,11 +45,13 @@ public class DirectoryActivity extends Activity implements SwipeRefreshLayout.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         setContentView(R.layout.activity_directory);
 
         init();
+        onRefresh();
     }
 
     private void init() {
@@ -71,12 +73,6 @@ public class DirectoryActivity extends Activity implements SwipeRefreshLayout.On
                 startActivity(intent);
             }
         });
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        onRefresh();
     }
 
     @Override
