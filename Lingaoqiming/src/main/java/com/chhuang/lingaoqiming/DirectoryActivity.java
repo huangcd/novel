@@ -2,11 +2,15 @@ package com.chhuang.lingaoqiming;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -15,15 +19,14 @@ import butterknife.InjectView;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.chhuang.lingaoqiming.data.Article;
+import com.chhuang.lingaoqiming.data.LingaoqimingRequest;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.util.Collections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,6 +34,7 @@ import java.util.regex.Pattern;
 public class DirectoryActivity extends Activity implements SwipeRefreshLayout.OnRefreshListener {
     public static final String  TAG                  = DirectoryActivity.class.getName();
     public static final Pattern ARTICLE_HREF_PATTERN = Pattern.compile("article/(\\d+).html", Pattern.CASE_INSENSITIVE);
+    public static final String  BASE_URL             = "http://www.lingaoqiming.com/";
     @InjectView(R.id.layout_titles)
     SwipeRefreshLayout layoutTitles;
     @InjectView(R.id.list_titles)
@@ -41,6 +45,7 @@ public class DirectoryActivity extends Activity implements SwipeRefreshLayout.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
 
         setContentView(R.layout.activity_directory);
 
@@ -51,33 +56,77 @@ public class DirectoryActivity extends Activity implements SwipeRefreshLayout.On
         ButterKnife.inject(this);
 
         layoutTitles.setOnRefreshListener(this);
+        layoutTitles.setColorScheme(android.R.color.holo_blue_bright,
+                                    android.R.color.holo_green_light,
+                                    android.R.color.holo_orange_light,
+                                    android.R.color.holo_red_light);
         requestQueue = Volley.newRequestQueue(this);
         articleArrayAdapter = new ArticleAdapter(this, R.layout.title_item);
         listViewTitles.setAdapter(articleArrayAdapter);
+        listViewTitles.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Article article = articleArrayAdapter.getItem(position);
+                Intent intent = new Intent(DirectoryActivity.this, ArticleActivity.class).putExtra("article", article);
+                startActivity(intent);
+            }
+        });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        onRefresh();
     }
 
     @Override
     public void onRefresh() {
         layoutTitles.setRefreshing(true);
 
-        requestQueue.add(new StringRequest("http://www.lingaoqiming.com", new Response.Listener<String>() {
+        requestQueue.add(new LingaoqimingRequest(BASE_URL, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                Document document = Jsoup.parse(response);
-                Elements elements = document.getElementsByAttributeValueMatching("href", ARTICLE_HREF_PATTERN);
-                Collections.reverse(elements);
-                for (Element element : elements) {
-                    String href = element.attr("href");
-                    Matcher matcher = ARTICLE_HREF_PATTERN.matcher(href);
-                    if (matcher.matches()) {
-                        int articleIndex = Integer.parseInt(matcher.group(1));
-                        String title = element.text();
-                        Article article = new Article(articleIndex, title);
+                articleArrayAdapter.clear();
+                articleArrayAdapter.notifyDataSetChanged();
+
+                new AsyncTask<String, Article, Void>() {
+                    @Override
+                    protected Void doInBackground(String... params) {
+                        if (params.length == 0) {
+                            return null;
+                        }
+                        String response = params[0];
+                        Document document = Jsoup.parse(response);
+                        Elements elements = document.getElementsByAttributeValueMatching("href", ARTICLE_HREF_PATTERN);
+                        for (Element element : elements) {
+                            String href = element.attr("href");
+                            Matcher matcher = ARTICLE_HREF_PATTERN.matcher(href);
+                            if (matcher.matches()) {
+                                int articleIndex = Integer.parseInt(matcher.group(1));
+                                String title = element.text();
+                                String url = BASE_URL + matcher.group();
+                                Article article = new Article(articleIndex, title, url);
+                                publishProgress(article);
+                            }
+                        }
+                        return null;
+                    }
+
+                    @Override
+                    protected void onPostExecute(Void aVoid) {
+                        layoutTitles.setRefreshing(false);
+                    }
+
+                    @Override
+                    protected void onProgressUpdate(Article... articles) {
+                        if (articles.length == 0) {
+                            return;
+                        }
+                        Article article = articles[0];
                         articleArrayAdapter.add(article);
                         articleArrayAdapter.notifyDataSetChanged();
                     }
-                    break;
-                }
+                }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response);
             }
         }, new Response.ErrorListener() {
             @Override
@@ -93,7 +142,6 @@ public class DirectoryActivity extends Activity implements SwipeRefreshLayout.On
         }
 
 
-
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             if (convertView == null) {
@@ -103,7 +151,7 @@ public class DirectoryActivity extends Activity implements SwipeRefreshLayout.On
             Article article = getItem(position);
             TextView chapterNumber = (TextView) convertView.findViewById(R.id.text_chapter);
             TextView chapterTitle = (TextView) convertView.findViewById(R.id.text_title);
-            chapterNumber.setText(Integer.toString(article.getChapterNumber()));
+            chapterNumber.setText(String.format("%04d", article.getChapterNumber()));
             chapterTitle.setText(article.getTitle());
             return convertView;
         }
