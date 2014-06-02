@@ -46,7 +46,6 @@ public class DirectoryActivity extends Activity
     @InjectView(R.id.list_titles)
     ListView           listViewTitles;
     private RequestQueue          requestQueue;
-    private ArrayAdapter<Article> articleArrayAdapter;
     private SimpleCursorAdapter   articleSimpleCursorAdapter;
 
     @Override
@@ -59,7 +58,6 @@ public class DirectoryActivity extends Activity
 
         init();
         getLoaderManager().initLoader(ARTICLE_LOADER, null, this);
-        onRefresh();
     }
 
     private void init() {
@@ -71,16 +69,19 @@ public class DirectoryActivity extends Activity
                                     android.R.color.holo_orange_light,
                                     android.R.color.holo_red_light);
         requestQueue = Volley.newRequestQueue(this);
-        articleArrayAdapter = new ArticleAdapter(this, R.layout.title_item);
-        articleSimpleCursorAdapter = new ArticleCursorAdapter(this, R.layout.title_item, null, new String[0], new int[0], 0);
+        articleSimpleCursorAdapter = new ArticleCursorAdapter(this,
+                                                              R.layout.title_item,
+                                                              null,
+                                                              new String[0],
+                                                              new int[0],
+                                                              0);
         listViewTitles.setAdapter(articleSimpleCursorAdapter);
         listViewTitles.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Cursor cursor = ((SimpleCursorAdapter)listViewTitles.getAdapter()).getCursor();
+                Cursor cursor = ((SimpleCursorAdapter) listViewTitles.getAdapter()).getCursor();
                 cursor.moveToPosition(position);
                 Article article = ArticleDataHelper.fromCursor(cursor);
-                // Article article = articleArrayAdapter.getItem(position);
                 Intent intent = new Intent(DirectoryActivity.this, ArticleActivity.class).putExtra("article", article);
                 startActivity(intent);
             }
@@ -94,8 +95,6 @@ public class DirectoryActivity extends Activity
         requestQueue.add(new GBKRequest(BASE_URL, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                // articleArrayAdapter.clear();
-                // articleArrayAdapter.notifyDataSetChanged();
 
                 ArrayList<Article> articles = new ArrayList<Article>();
                 Document document = Jsoup.parse(response);
@@ -113,11 +112,6 @@ public class DirectoryActivity extends Activity
                 }
 
                 ArticleDataHelper.getInstance(AppContext.getContext()).bulkInsert(articles);
-
-                // for (Article article : articles) {
-                //     articleArrayAdapter.add(article);
-                //     articleArrayAdapter.notifyDataSetChanged();
-                // }
 
                 layoutTitles.setRefreshing(false);
             }
@@ -149,6 +143,9 @@ public class DirectoryActivity extends Activity
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         articleSimpleCursorAdapter.changeCursor(data);
+        if (data == null || data.getCount() == 0) {
+            onRefresh();
+        }
     }
 
     @Override
@@ -175,39 +172,13 @@ public class DirectoryActivity extends Activity
             int id = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.ArticleInfo._ID));
             String title = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ArticleInfo.TITLE));
             if (TextUtils.isEmpty(content)) {
-                star.setImageState(new int[]{}, false);
+                star.setImageState(new int[]{android.R.attr.state_pressed}, false);
             } else {
-                star.setImageState(new int[]{android.R.attr.state_checked}, false);
+                star.setImageState(new int[]{android.R.attr.state_checked, android.R.attr.state_pressed}, false);
             }
             chapterNumber.setText(String.format("%04d", id));
             chapterTitle.setText(title);
         }
     }
 
-    private class ArticleAdapter extends ArrayAdapter<Article> {
-        public ArticleAdapter(Context context, int resource) {
-            super(context, resource);
-        }
-
-
-        @Override
-        public View getView(int position, View view, ViewGroup parent) {
-            if (view == null) {
-                LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                view = inflater.inflate(R.layout.title_item, null);
-            }
-            Article article = getItem(position);
-            TextView chapterNumber = (TextView) view.findViewById(R.id.text_chapter);
-            TextView chapterTitle = (TextView) view.findViewById(R.id.text_title);
-            ImageView star = (ImageView) view.findViewById(R.id.image_status);
-            if (article.getContent() == null || article.getContent().isEmpty()) {
-                star.setImageState(new int[]{}, false);
-            } else {
-                star.setImageState(new int[]{android.R.attr.state_checked}, false);
-            }
-            chapterNumber.setText(String.format("%04d", article.getId()));
-            chapterTitle.setText(article.getTitle());
-            return view;
-        }
-    }
 }
