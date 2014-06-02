@@ -1,4 +1,4 @@
-package com.chhuang.lingaoqiming.data;
+package com.chhuang.benhuai.data;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;

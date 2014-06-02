@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Lingaoqiming</string>
+    <string name="app_name">崩坏世界</string>
     <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content"></string>
+    <string name="dummy_content"/>
     <string name="title_activity_article">ArticleActivity</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>

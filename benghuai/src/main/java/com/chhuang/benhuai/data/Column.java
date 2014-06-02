@@ -1,4 +1,4 @@
-package com.chhuang.lingaoqiming.data;
+package com.chhuang.benhuai.data;
 
 /**
  * Date: 2014/5/27

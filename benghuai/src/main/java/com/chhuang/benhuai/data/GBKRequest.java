@@ -1,4 +1,4 @@
-package com.chhuang.lingaoqiming.data;
+package com.chhuang.benhuai.data;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Response;
@@ -13,8 +13,8 @@ import java.io.UnsupportedEncodingException;
  *
  * @author chhuang@microsoft.com
  */
-public class LingaoqimingRequest extends StringRequest {
-    public LingaoqimingRequest(
+public class GBKRequest extends StringRequest {
+    public GBKRequest(
             String url,
             Response.Listener<String> listener,
             Response.ErrorListener errorListener) {
@@ -25,7 +25,7 @@ public class LingaoqimingRequest extends StringRequest {
     protected Response<String> parseNetworkResponse(NetworkResponse response) {
         String parsed;
         try {
-            parsed = new String(response.data, "GB2312");
+            parsed = new String(response.data, "GBK");
         } catch (UnsupportedEncodingException e) {
             parsed = new String(response.data);
         }

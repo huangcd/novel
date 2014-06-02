@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:background="#0099cc"
     android:id="@+id/layout_titles"
-    tools:context="com.chhuang.lingaoqiming.DirectoryActivity">
+    tools:context="com.chhuang.benhuai.DirectoryActivity">
 
     <ListView
         android:id="@+id/list_titles"

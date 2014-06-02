@@ -1,4 +1,4 @@
-package com.chhuang.lingaoqiming;
+package com.chhuang.benhuai;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -15,12 +15,12 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
-import com.chhuang.lingaoqiming.data.Article;
-import com.chhuang.lingaoqiming.data.LingaoqimingRequest;
+import com.chhuang.benhuai.data.Article;
+import com.chhuang.benhuai.data.GBKRequest;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import org.jsoup.nodes.TextNode;
 
 public class ArticleActivity extends Activity implements SwipeRefreshLayout.OnRefreshListener {
     @InjectView(R.id.layout_article)
@@ -50,18 +50,13 @@ public class ArticleActivity extends Activity implements SwipeRefreshLayout.OnRe
         Intent intent = getIntent();
         article = intent.getParcelableExtra("article");
         queue = Volley.newRequestQueue(this);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
         onRefresh();
     }
 
     @Override
     public void onRefresh() {
         layoutArticle.setRefreshing(true);
-        queue.add(new LingaoqimingRequest(article.getUrl(), new Response.Listener<String>() {
+        queue.add(new GBKRequest(article.getUrl(), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 new AsyncTask<String, Void, String>() {
@@ -71,10 +66,10 @@ public class ArticleActivity extends Activity implements SwipeRefreshLayout.OnRe
                             return "";
                         }
                         Document document = Jsoup.parse(params[0]);
-                        Elements ps = document.select("div.gray14").select("p");
+                        Element content = document.select("div#content").first();
                         StringBuilder buffer = new StringBuilder();
-                        for (Element p : ps) {
-                            buffer.append(p.text()).append("\r\n");
+                        for (TextNode p : content.textNodes()) {
+                            buffer.append(p.getWholeText()).append("\r\n");
                         }
                         return buffer.toString();
                     }

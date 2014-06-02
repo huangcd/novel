@@ -1,4 +1,4 @@
-package com.chhuang.lingaoqiming;
+package com.chhuang.benhuai;
 
 import android.app.Activity;
 import android.content.Context;
@@ -20,8 +20,8 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
-import com.chhuang.lingaoqiming.data.Article;
-import com.chhuang.lingaoqiming.data.LingaoqimingRequest;
+import com.chhuang.benhuai.data.Article;
+import com.chhuang.benhuai.data.GBKRequest;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -33,8 +33,8 @@ import java.util.regex.Pattern;
 
 public class DirectoryActivity extends Activity implements SwipeRefreshLayout.OnRefreshListener {
     public static final String  TAG                  = DirectoryActivity.class.getName();
-    public static final Pattern ARTICLE_HREF_PATTERN = Pattern.compile("article/(\\d+).html", Pattern.CASE_INSENSITIVE);
-    public static final String  BASE_URL             = "http://www.lingaoqiming.com/";
+    public static final Pattern ARTICLE_HREF_PATTERN = Pattern.compile("/5_5133/(\\d+).html", Pattern.CASE_INSENSITIVE);
+    public static final String  BASE_URL             = "http://www.biquge.com/5_5133/";
     @InjectView(R.id.layout_titles)
     SwipeRefreshLayout layoutTitles;
     @InjectView(R.id.list_titles)
@@ -79,7 +79,7 @@ public class DirectoryActivity extends Activity implements SwipeRefreshLayout.On
     public void onRefresh() {
         layoutTitles.setRefreshing(true);
 
-        requestQueue.add(new LingaoqimingRequest(BASE_URL, new Response.Listener<String>() {
+        requestQueue.add(new GBKRequest(BASE_URL, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 articleArrayAdapter.clear();
@@ -93,14 +93,14 @@ public class DirectoryActivity extends Activity implements SwipeRefreshLayout.On
                         }
                         String response = params[0];
                         Document document = Jsoup.parse(response);
-                        Elements elements = document.getElementsByAttributeValueMatching("href", ARTICLE_HREF_PATTERN);
-                        for (Element element : elements) {
-                            String href = element.attr("href");
+                        Elements dds = document.select("dd").select("a");
+                        for (Element a : dds) {
+                            String href = a.attr("href");
                             Matcher matcher = ARTICLE_HREF_PATTERN.matcher(href);
                             if (matcher.matches()) {
                                 int articleIndex = Integer.parseInt(matcher.group(1));
-                                String title = element.text();
-                                String url = BASE_URL + matcher.group();
+                                String title = a.text();
+                                String url = BASE_URL + matcher.group(1) + ".html";
                                 Article article = new Article(articleIndex, title, url);
                                 publishProgress(article);
                             }
