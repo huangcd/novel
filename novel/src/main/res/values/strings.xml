@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">小说阅读</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content"/>
+    <string name="title_activity_article">ArticleActivity</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+
+</resources>
