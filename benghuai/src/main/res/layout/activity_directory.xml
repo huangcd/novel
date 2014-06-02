@@ -2,9 +2,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
+    android:background="#FFFFFF"
     android:id="@+id/layout_titles"
-    tools:context="com.chhuang.benhuai.DirectoryActivity">
+    tools:context="com.chhuang.benghuai.DirectoryActivity">
 
     <ListView
         android:id="@+id/list_titles"

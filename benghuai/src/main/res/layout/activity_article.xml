@@ -3,12 +3,12 @@
     android:id="@+id/layout_article"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
+    android:background="#FFFFFF"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:paddingBottom="@dimen/activity_vertical_margin"
-    tools:context="com.chhuang.benhuai.ArticleActivity">
+    tools:context="com.chhuang.benghuai.ArticleActivity">
 
     <ScrollView
         android:layout_margin="5dp"

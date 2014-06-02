@@ -1,4 +1,4 @@
-package com.chhuang.benhuai.data;
+package com.chhuang.benghuai.data.sql;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
@@ -13,13 +13,13 @@ import java.util.List;
  * @author chhuang@microsoft.com
  */
 public class SQLiteTable {
-    private String tableName;
+    private String       tableName;
     private List<Column> columnDefinitions;
 
     public SQLiteTable(String tableName) {
         this.tableName = tableName;
         columnDefinitions = new ArrayList<Column>();
-        columnDefinitions.add(new Column(BaseColumns._ID, "PRIMARY KEY", Column.DataType.INTEGER));
+        columnDefinitions.add(new Column(Column._ID, "PRIMARY KEY", Column.DataType.INTEGER));
     }
 
     public SQLiteTable addColumn(Column column) {

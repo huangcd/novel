@@ -1,0 +1,5 @@
+<root>
+    <item name='android.content.Context android.content.ContentResolver getContentResolver()'>
+        <annotation name='org.jetbrains.annotations.NotNull' />
+    </item>
+</root>

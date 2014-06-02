@@ -1,4 +1,4 @@
-package com.chhuang.benhuai.data;
+package com.chhuang.benghuai.data;
 
 import com.android.volley.NetworkResponse;
 import com.android.volley.Response;

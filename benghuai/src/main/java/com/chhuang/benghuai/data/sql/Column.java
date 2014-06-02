@@ -1,4 +1,6 @@
-package com.chhuang.benhuai.data;
+package com.chhuang.benghuai.data.sql;
+
+import android.provider.BaseColumns;
 
 /**
  * Date: 2014/5/27
@@ -6,7 +8,7 @@ package com.chhuang.benhuai.data;
  *
  * @author chhuang@microsoft.com
  */
-public class Column {
+public class Column implements BaseColumns {
     private String name;
     private String constraint;
     private DataType type;

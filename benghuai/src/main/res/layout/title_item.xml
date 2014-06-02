@@ -53,7 +53,7 @@
         android:id="@+id/image_status"
         android:layout_margin="10dp"
         android:contentDescription="@string/dummy_content"
-        android:src="@drawable/ic_launcher"
+        android:src="@android:drawable/btn_star"
         android:layout_gravity="center" />
 
 </LinearLayout>

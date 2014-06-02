@@ -1,28 +1,34 @@
-package com.chhuang.benhuai;
+package com.chhuang.benghuai;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.AsyncTask;
+import android.net.Uri;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 import android.widget.TextView;
+import android.widget.Toast;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
-import com.chhuang.benhuai.data.Article;
-import com.chhuang.benhuai.data.GBKRequest;
+import com.chhuang.benghuai.data.Article;
+import com.chhuang.benghuai.data.GBKRequest;
+import com.chhuang.benghuai.data.dao.ArticleDataHelper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
 
 public class ArticleActivity extends Activity implements SwipeRefreshLayout.OnRefreshListener {
+    public static final String TAG = ArticleActivity.class.getName();
     @InjectView(R.id.layout_article)
     SwipeRefreshLayout layoutArticle;
     @InjectView(R.id.content)
@@ -50,7 +56,12 @@ public class ArticleActivity extends Activity implements SwipeRefreshLayout.OnRe
         Intent intent = getIntent();
         article = intent.getParcelableExtra("article");
         queue = Volley.newRequestQueue(this);
-        onRefresh();
+
+        if (TextUtils.isEmpty(article.getContent())) {
+            onRefresh();
+        } else {
+            contentView.setText(article.getContent());
+        }
     }
 
     @Override
@@ -59,35 +70,25 @@ public class ArticleActivity extends Activity implements SwipeRefreshLayout.OnRe
         queue.add(new GBKRequest(article.getUrl(), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                new AsyncTask<String, Void, String>() {
-                    @Override
-                    protected String doInBackground(String... params) {
-                        if (params.length == 0) {
-                            return "";
-                        }
-                        Document document = Jsoup.parse(params[0]);
-                        Element content = document.select("div#content").first();
-                        StringBuilder buffer = new StringBuilder();
-                        for (TextNode p : content.textNodes()) {
-                            buffer.append(p.getWholeText()).append("\r\n");
-                        }
-                        return buffer.toString();
-                    }
-
-                    @Override
-                    protected void onPostExecute(String s) {
-                        contentView.setText(s);
-                        layoutArticle.setRefreshing(false);
-                    }
-                }.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, response);
+                Document document = Jsoup.parse(response);
+                Element content = document.select("div#content").first();
+                StringBuilder buffer = new StringBuilder();
+                for (TextNode p : content.textNodes()) {
+                    buffer.append(p.getWholeText()).append("\r\n");
+                }
+                contentView.setText(buffer);
+                layoutArticle.setRefreshing(false);
+                article.setContent(buffer.toString());
+                Uri uri = ArticleDataHelper.getInstance(AppContext.getContext()).insert(article);
+                Log.v(TAG, "Article uri: " + uri);
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                AppContext.showToast(ArticleActivity.this, "刷新失败，请稍后重试", Toast.LENGTH_LONG);
                 layoutArticle.setRefreshing(false);
             }
         }));
-
     }
 
     @Override
