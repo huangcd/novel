@@ -23,7 +23,7 @@ import com.android.volley.toolbox.Volley;
 import com.chhuang.novel.data.Article;
 import com.chhuang.novel.data.GBKRequest;
 import com.chhuang.novel.data.dao.ArticleDataHelper;
-import com.chhuang.novel.data.dao.DatabaseHelper;
+import com.chhuang.novel.data.dao.ArticleInfo;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -88,6 +88,30 @@ public class DirectoryActivity extends Activity
     }
 
     @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        switch (id) {
+            case ARTICLE_LOADER:
+                return new CursorLoader(this,
+                                        ArticleDataHelper.ARTICLE_CONTENT_URI,
+                                        ArticleInfo.PROJECTIONS,
+                                        null,
+                                        null,
+                                        ArticleInfo._ID);
+            default:
+                return null;
+        }
+
+    }
+
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        articleSimpleCursorAdapter.changeCursor(data);
+        if (data == null || data.getCount() == 0) {
+            onRefresh();
+        }
+    }
+
+    @Override
     public void onRefresh() {
         layoutTitles.setRefreshing(true);
 
@@ -124,30 +148,6 @@ public class DirectoryActivity extends Activity
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        switch (id) {
-            case ARTICLE_LOADER:
-                return new CursorLoader(this,
-                                        ArticleDataHelper.ARTICLE_CONTENT_URI,
-                                        DatabaseHelper.ArticleInfo.PROJECTIONS,
-                                        null,
-                                        null,
-                                        DatabaseHelper.ArticleInfo._ID);
-            default:
-                return null;
-        }
-
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        articleSimpleCursorAdapter.changeCursor(data);
-        if (data == null || data.getCount() == 0) {
-            onRefresh();
-        }
-    }
-
-    @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         articleSimpleCursorAdapter.changeCursor(null);
     }
@@ -166,10 +166,10 @@ public class DirectoryActivity extends Activity
             TextView chapterNumber = (TextView) view.findViewById(R.id.text_chapter);
             TextView chapterTitle = (TextView) view.findViewById(R.id.text_title);
             ImageView star = (ImageView) view.findViewById(R.id.image_status);
-            byte[] blob = cursor.getBlob(cursor.getColumnIndex(DatabaseHelper.ArticleInfo.CONTENT));
+            byte[] blob = cursor.getBlob(cursor.getColumnIndex(ArticleInfo.CONTENT));
             String content = blob == null ? null : new String(blob);
-            int id = cursor.getInt(cursor.getColumnIndex(DatabaseHelper.ArticleInfo._ID));
-            String title = cursor.getString(cursor.getColumnIndex(DatabaseHelper.ArticleInfo.TITLE));
+            int id = cursor.getInt(cursor.getColumnIndex(ArticleInfo._ID));
+            String title = cursor.getString(cursor.getColumnIndex(ArticleInfo.TITLE));
             if (TextUtils.isEmpty(content)) {
                 star.setImageState(new int[]{android.R.attr.state_pressed}, false);
             } else {
@@ -179,5 +179,4 @@ public class DirectoryActivity extends Activity
             chapterTitle.setText(title);
         }
     }
-
 }

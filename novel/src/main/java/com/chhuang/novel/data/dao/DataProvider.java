@@ -21,9 +21,9 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author chhuang@microsoft.com
  */
 public class DataProvider extends ContentProvider {
-    public static final    String        AUTHORITY                 = "com.chhuang.benghuai.provider";
-    public static final    String        ARTICLE_CONTENT_TYPE      = "vnd.android.cursor.dir/" + AUTHORITY;
-    public static final    String        ARTICLE_CONTENT_ITEM_TYPE = "vnd.android.cursor.item/" + AUTHORITY;
+    public static final String AUTHORITY                 = "com.chhuang.novel.provider";
+    public static final String ARTICLE_CONTENT_TYPE      = "vnd.android.cursor.dir/" + AUTHORITY + ".article";
+    public static final String ARTICLE_CONTENT_ITEM_TYPE = "vnd.android.cursor.item/" + AUTHORITY + ".article";
     public static final    int           ARTICLES                  = 0;
     public static final    int           ARTICLE                   = 1;
     public static final    UriMatcher    URI_MATCHER               = new UriMatcher(UriMatcher.NO_MATCH);
@@ -32,8 +32,8 @@ public class DataProvider extends ContentProvider {
     public static DatabaseHelper DBHelper;
 
     static {
-        URI_MATCHER.addURI(AUTHORITY, DatabaseHelper.ArticleInfo.TABLE_NAME, ARTICLES);
-        URI_MATCHER.addURI(AUTHORITY, DatabaseHelper.ArticleInfo.TABLE_NAME + "/#", ARTICLE);
+        URI_MATCHER.addURI(AUTHORITY, ArticleInfo.TABLE_NAME, ARTICLES);
+        URI_MATCHER.addURI(AUTHORITY, ArticleInfo.TABLE_NAME + "/#", ARTICLE);
     }
 
     public boolean onCreate() {
@@ -69,7 +69,7 @@ public class DataProvider extends ContentProvider {
         switch (URI_MATCHER.match(uri)) {
             case ARTICLES:
             case ARTICLE:
-                return DatabaseHelper.ArticleInfo.TABLE_NAME;
+                return ArticleInfo.TABLE_NAME;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }

@@ -9,8 +9,7 @@ import com.chhuang.novel.data.Article;
 import java.text.MessageFormat;
 import java.util.List;
 
-import static android.provider.BaseColumns._ID;
-import static com.chhuang.novel.data.dao.DatabaseHelper.ArticleInfo.*;
+import static com.chhuang.novel.data.dao.ArticleInfo.TABLE_NAME;
 
 /**
  * Created by chhuang on 2014/5/28.
@@ -24,6 +23,10 @@ public class ArticleDataHelper extends BaseDataHelper<Article> {
 
     private static ArticleDataHelper instance;
 
+    private ArticleDataHelper(Context context) {
+        super(context);
+    }
+
     public synchronized static ArticleDataHelper getInstance(Context context) {
         if (instance == null) {
             instance = new ArticleDataHelper(context.getApplicationContext());
@@ -31,24 +34,13 @@ public class ArticleDataHelper extends BaseDataHelper<Article> {
         return instance;
     }
 
-    private ArticleDataHelper(Context context) {
-        super(context);
+    public static Article fromCursor(Cursor cursor) {
+        return fromContentValues(cursor, Article.class);
     }
 
     @Override
     protected Uri getContentUri() {
         return ARTICLE_CONTENT_URI;
-    }
-
-    public static Article fromCursor(Cursor cursor) {
-        int id = cursor.getInt(cursor.getColumnIndex(_ID));
-        String title = cursor.getString(cursor.getColumnIndex(TITLE));
-        String url = cursor.getString(cursor.getColumnIndex(URL));
-        byte[] blob = cursor.getBlob(cursor.getColumnIndex(CONTENT));
-        String content = blob == null ? null : new String(blob);
-        Article article = new Article(id, title, url);
-        article.setContent(content);
-        return article;
     }
 
     public void bulkInsert(List<Article> articles) {

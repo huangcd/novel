@@ -7,9 +7,8 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.Window;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 import butterknife.ButterKnife;
@@ -32,6 +31,8 @@ public class ArticleActivity extends Activity implements SwipeRefreshLayout.OnRe
     SwipeRefreshLayout layoutArticle;
     @InjectView(R.id.content)
     TextView           contentView;
+    @InjectView(R.id.sroll_view_content)
+    ScrollView scrollView;
     private Article      article;
     private RequestQueue queue;
 
@@ -59,8 +60,13 @@ public class ArticleActivity extends Activity implements SwipeRefreshLayout.OnRe
         if (TextUtils.isEmpty(article.getContent())) {
             onRefresh();
         } else {
-            contentView.setText(article.getContent());
+            setText();
         }
+    }
+
+    private void setText() {
+        contentView.setText(article.getContent());
+        scrollView.scrollTo(0, (int) (article.getPercentage() * contentView.getHeight() - scrollView.getHeight()));
     }
 
     @Override
@@ -91,22 +97,9 @@ public class ArticleActivity extends Activity implements SwipeRefreshLayout.OnRe
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.article, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+    public void onBackPressed() {
+        article.setPercentage((scrollView.getScrollY() + scrollView.getHeight()) * 1.0 / contentView.getHeight());
+        ArticleDataHelper.getInstance(this).insert(article);
+        super.onBackPressed();
     }
 }

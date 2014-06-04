@@ -29,6 +29,7 @@ dependencies {
     compile 'com.android.support:support-v4:19+'
     compile 'com.mcxiaoke.volley:library:1.0.+'
     compile 'org.jsoup:jsoup:1.+'
+    compile 'com.google.code.gson:gson:2.2.4'
     compile 'com.jakewharton:butterknife:5.+'
     compile 'joda-time:joda-time:1.6.+'
     compile fileTree(dir: 'libs', include: ['*.jar'])

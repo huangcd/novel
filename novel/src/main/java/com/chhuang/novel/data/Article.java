@@ -4,7 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import com.chhuang.novel.data.dao.ContentKey;
 
-import static com.chhuang.novel.data.dao.DatabaseHelper.ArticleInfo.*;
+import static com.chhuang.novel.data.dao.ArticleInfo.*;
 
 /**
  * Date: 2014/5/23
@@ -21,7 +21,7 @@ public class Article implements Parcelable {
             String title = (String) source.readValue(stringClassLoader);
             String url = (String) source.readValue(stringClassLoader);
             Article article = new Article(chapterNumber, title, url);
-            article.setOffset(source.readInt());
+            article.setPercentage(source.readDouble());
             article.setContent((String) source.readValue(stringClassLoader));
             article.setHasRead((Boolean) source.readValue(Boolean.class.getClassLoader()));
             article.setDateTime(source.readLong());
@@ -33,20 +33,23 @@ public class Article implements Parcelable {
             return new Article[size];
         }
     };
-    @ContentKey(key = OFFSET)
-    private int      offset;
+    @ContentKey(key = PERCENTAGE)
+    private double  percentage;
     @ContentKey(key = CONTENT)
-    private String   content;
+    private String  content;
     @ContentKey(key = _ID)
-    private int      id;
+    private int     id;
     @ContentKey(key = TITLE)
-    private String   title;
+    private String  title;
     @ContentKey(key = URL)
-    private String   url;
+    private String  url;
     @ContentKey(key = HAS_READ)
-    private boolean  hasRead;
+    private boolean hasRead;
     @ContentKey(key = TIME)
-    private long dateTime;
+    private long    dateTime;
+
+    public Article() {
+    }
 
     public Article(int id, String title, String url) {
         this.id = id;
@@ -59,7 +62,7 @@ public class Article implements Parcelable {
         dest.writeInt(id);
         dest.writeValue(title);
         dest.writeValue(url);
-        dest.writeInt(offset);
+        dest.writeDouble(percentage);
         dest.writeValue(content);
         dest.writeValue(hasRead);
         dest.writeLong(dateTime);
@@ -73,12 +76,12 @@ public class Article implements Parcelable {
         this.hasRead = hasRead;
     }
 
-    public int getOffset() {
-        return offset;
+    public double getPercentage() {
+        return percentage;
     }
 
-    public void setOffset(int offset) {
-        this.offset = offset;
+    public void setPercentage(double percentage) {
+        this.percentage = percentage;
     }
 
     public String getContent() {
