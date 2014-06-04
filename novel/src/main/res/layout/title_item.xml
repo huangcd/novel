@@ -42,8 +42,8 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:id="@+id/progress_article"
-            android:layout_margin="4dp"
-            android:visibility="invisible" />
+            android:max="100"
+            android:layout_margin="4dp" />
 
     </LinearLayout>
 

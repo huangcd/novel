@@ -29,6 +29,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -166,17 +167,18 @@ public class DirectoryActivity extends Activity
             TextView chapterNumber = (TextView) view.findViewById(R.id.text_chapter);
             TextView chapterTitle = (TextView) view.findViewById(R.id.text_title);
             ImageView star = (ImageView) view.findViewById(R.id.image_status);
-            byte[] blob = cursor.getBlob(cursor.getColumnIndex(ArticleInfo.CONTENT));
-            String content = blob == null ? null : new String(blob);
-            int id = cursor.getInt(cursor.getColumnIndex(ArticleInfo._ID));
-            String title = cursor.getString(cursor.getColumnIndex(ArticleInfo.TITLE));
-            if (TextUtils.isEmpty(content)) {
+            ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.progress_article);
+            Article article = ArticleDataHelper.fromCursor(cursor);
+            if (TextUtils.isEmpty(article.getContent())) {
                 star.setImageState(new int[]{android.R.attr.state_pressed}, false);
             } else {
                 star.setImageState(new int[]{android.R.attr.state_checked, android.R.attr.state_pressed}, false);
             }
-            chapterNumber.setText(String.format("%04d", id));
-            chapterTitle.setText(title);
+            final int progress = (int) (100 * article.getPercentage());
+            chapterNumber.setText(String.format("%04d", article.getId()));
+            chapterTitle.setText(MessageFormat.format("{0}({1}%)", article.getTitle(), progress));
+            progressBar.setProgress(progress);
+
         }
     }
 }

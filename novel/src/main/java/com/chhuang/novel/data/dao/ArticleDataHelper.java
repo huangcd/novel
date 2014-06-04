@@ -9,7 +9,8 @@ import com.chhuang.novel.data.Article;
 import java.text.MessageFormat;
 import java.util.List;
 
-import static com.chhuang.novel.data.dao.ArticleInfo.TABLE_NAME;
+import static android.provider.BaseColumns._ID;
+import static com.chhuang.novel.data.dao.ArticleInfo.*;
 
 /**
  * Created by chhuang on 2014/5/28.
@@ -35,7 +36,16 @@ public class ArticleDataHelper extends BaseDataHelper<Article> {
     }
 
     public static Article fromCursor(Cursor cursor) {
-        return fromContentValues(cursor, Article.class);
+        int id = cursor.getInt(cursor.getColumnIndex(_ID));
+        String title = cursor.getString(cursor.getColumnIndex(TITLE));
+        String url = cursor.getString(cursor.getColumnIndex(URL));
+        final byte[] blob = cursor.getBlob(cursor.getColumnIndex(CONTENT));
+        String content = blob == null ? null : new String(blob);
+        double percentage = cursor.getDouble(cursor.getColumnIndex(PERCENTAGE));
+        Article article = new Article(id, title, url);
+        article.setContent(content);
+        article.setPercentage(percentage);
+        return article;
     }
 
     @Override
