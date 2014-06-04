@@ -66,7 +66,13 @@ public class ArticleActivity extends Activity implements SwipeRefreshLayout.OnRe
 
     private void setText() {
         contentView.setText(article.getContent());
-        scrollView.scrollTo(0, (int) (article.getPercentage() * contentView.getHeight() - scrollView.getHeight()));
+        scrollView.post(new Runnable() {
+            @Override
+            public void run() {
+                final int y = (int) (article.getPercentage() * contentView.getHeight() - scrollView.getHeight());
+                scrollView.scrollTo(0, y);
+            }
+        });
     }
 
     @Override
@@ -98,8 +104,9 @@ public class ArticleActivity extends Activity implements SwipeRefreshLayout.OnRe
 
     @Override
     public void onBackPressed() {
-        article.setPercentage((scrollView.getScrollY() + scrollView.getHeight()) * 1.0 / contentView.getHeight());
-        ArticleDataHelper.getInstance(this).insert(article);
+        final double percentage = (scrollView.getScrollY() + scrollView.getHeight()) * 1.0 / contentView.getHeight();
+        article.setPercentage(percentage);
+        ArticleDataHelper.getInstance(AppContext.getContext()).insert(article);
         super.onBackPressed();
     }
 }

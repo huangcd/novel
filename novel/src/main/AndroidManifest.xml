@@ -13,7 +13,7 @@
         android:name="com.chhuang.novel.AppContext">
         <provider
             android:authorities="com.chhuang.novel.provider"
-            android:name="com.chhuang.novel.data.dao.DataProvider"
+            android:name=".data.dao.DataContentProvider"
             android:exported="false" />
 
         <activity

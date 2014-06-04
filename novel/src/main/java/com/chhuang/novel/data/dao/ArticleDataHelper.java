@@ -17,7 +17,7 @@ import static com.chhuang.novel.data.dao.ArticleInfo.TABLE_NAME;
 public class ArticleDataHelper extends BaseDataHelper<Article> {
 
     public static final String ARTICLE_CONTENT_URL_STRING = MessageFormat.format("content://{0}/{1}",
-                                                                                 DataProvider.AUTHORITY,
+                                                                                 DataContentProvider.AUTHORITY,
                                                                                  TABLE_NAME);
     public static final Uri    ARTICLE_CONTENT_URI        = Uri.parse(ARTICLE_CONTENT_URL_STRING);
 

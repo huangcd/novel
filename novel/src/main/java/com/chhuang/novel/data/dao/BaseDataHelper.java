@@ -97,6 +97,9 @@ public abstract class BaseDataHelper<T> {
             String key = field.getAnnotation(ContentKey.class).key();
             try {
                 Object value = field.get(t);
+                if (value == null) {
+                    continue;
+                }
                 if (value instanceof String) {
                     values.put(key, (String) value);
                 } else if (value instanceof Long) {

@@ -20,15 +20,17 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @author chhuang@microsoft.com
  */
-public class DataProvider extends ContentProvider {
-    public static final String AUTHORITY                 = "com.chhuang.novel.provider";
-    public static final String ARTICLE_CONTENT_TYPE      = "vnd.android.cursor.dir/" + AUTHORITY + ".article";
-    public static final String ARTICLE_CONTENT_ITEM_TYPE = "vnd.android.cursor.item/" + AUTHORITY + ".article";
+public class DataContentProvider extends ContentProvider {
+    public static final    String        AUTHORITY                 = "com.chhuang.novel.provider";
+    public static final    String        ARTICLE_CONTENT_TYPE      = "vnd.android.cursor.dir/" + AUTHORITY + ".article";
+    public static final    String        ARTICLE_CONTENT_ITEM_TYPE = "vnd.android.cursor.item/"
+                                                                     + AUTHORITY
+                                                                     + ".article";
     public static final    int           ARTICLES                  = 0;
     public static final    int           ARTICLE                   = 1;
     public static final    UriMatcher    URI_MATCHER               = new UriMatcher(UriMatcher.NO_MATCH);
     protected final static ReentrantLock DBLock                    = new ReentrantLock();
-    private final static   String        TAG                       = DataProvider.class.getName();
+    private final static   String        TAG                       = DataContentProvider.class.getName();
     public static DatabaseHelper DBHelper;
 
     static {
