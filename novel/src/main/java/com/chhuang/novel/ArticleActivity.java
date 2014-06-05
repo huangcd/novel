@@ -19,6 +19,8 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import com.chhuang.novel.data.Article;
 import com.chhuang.novel.data.GBKRequest;
+import com.chhuang.novel.data.articles.BenghuaiNovel;
+import com.chhuang.novel.data.articles.INovel;
 import com.chhuang.novel.data.dao.ArticleDataHelper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -75,21 +77,18 @@ public class ArticleActivity extends Activity implements SwipeRefreshLayout.OnRe
         });
     }
 
+    private INovel novel = new BenghuaiNovel();
+
     @Override
     public void onRefresh() {
         layoutArticle.setRefreshing(true);
         queue.add(new GBKRequest(article.getUrl(), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-                Document document = Jsoup.parse(response);
-                Element content = document.select("div#content").first();
-                StringBuilder buffer = new StringBuilder();
-                for (TextNode p : content.textNodes()) {
-                    buffer.append(p.getWholeText()).append("\r\n");
-                }
-                contentView.setText(buffer);
+                String content = novel.parseArticle(response);
+                contentView.setText(content);
                 layoutArticle.setRefreshing(false);
-                article.setContent(buffer.toString());
+                article.setContent(content);
                 Uri uri = ArticleDataHelper.getInstance(AppContext.getContext()).insert(article);
                 Log.v(TAG, "Article uri: " + uri);
             }

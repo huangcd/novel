@@ -26,6 +26,7 @@ android {
 }
 
 dependencies {
+    compile 'org.roboguice:roboguice:2.0'
     compile 'com.android.support:support-v4:19+'
     compile 'com.mcxiaoke.volley:library:1.0.+'
     compile 'org.jsoup:jsoup:1.+'
