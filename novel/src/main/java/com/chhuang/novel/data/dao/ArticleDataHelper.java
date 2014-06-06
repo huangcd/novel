@@ -15,7 +15,7 @@ import static com.chhuang.novel.data.dao.ArticleInfo.*;
 /**
  * Created by chhuang on 2014/5/28.
  */
-public class ArticleDataHelper extends BaseDataHelper<Article> {
+public class ArticleDataHelper extends BaseModelHelper<Article> {
 
     public static final String ARTICLE_CONTENT_URL_STRING = MessageFormat.format("content://{0}/{1}",
                                                                                  DataContentProvider.AUTHORITY,

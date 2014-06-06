@@ -19,14 +19,14 @@ import java.util.HashMap;
  *
  * @author chhuang
  */
-public abstract class BaseDataHelper<T> {
-    public static final  String                              TAG  = BaseDataHelper.class.getName();
+public abstract class BaseModelHelper<T> {
+    public static final  String                              TAG  = BaseModelHelper.class.getName();
     public static final  Gson                                GSON = new GsonBuilder().create();
     private static final HashMap<Class<?>, ArrayList<Field>> annotatedFieldMap
                                                                   = new HashMap<Class<?>, ArrayList<Field>>();
     private Context context;
 
-    public BaseDataHelper(Context context) {
+    public BaseModelHelper(Context context) {
         this.context = context;
     }
 
@@ -142,8 +142,7 @@ public abstract class BaseDataHelper<T> {
     public final Cursor query(
             String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
-        return context.getContentResolver().query(getContentUri(), projection, selection,
-                                                  selectionArgs, sortOrder);
+        return query(getContentUri(), projection, selection, selectionArgs, sortOrder);
     }
 
     public final Uri insert(ContentValues values) {
@@ -162,13 +161,6 @@ public abstract class BaseDataHelper<T> {
         return context.getContentResolver().delete(getContentUri(), selection, selectionArgs);
     }
 
-    public final Cursor getList(
-            String[] projection, String selection, String[] selectionArgs,
-            String sortOrder) {
-        return context.getContentResolver().query(getContentUri(), projection, selection,
-                                                  selectionArgs, sortOrder);
-    }
-
     public CursorLoader getCursorLoader(Context context) {
         return getCursorLoader(context, null, null, null, null);
     }
@@ -179,5 +171,4 @@ public abstract class BaseDataHelper<T> {
         return new CursorLoader(context, getContentUri(), projection, selection, selectionArgs,
                                 sortOrder);
     }
-
 }
