@@ -7,12 +7,12 @@ import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.Window;
+import android.util.Log;
+import android.view.*;
 import android.widget.*;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -22,24 +22,18 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import com.chhuang.novel.data.Article;
 import com.chhuang.novel.data.GBKRequest;
+import com.chhuang.novel.data.articles.BenghuaiNovel;
+import com.chhuang.novel.data.articles.INovel;
 import com.chhuang.novel.data.dao.ArticleDataHelper;
 import com.chhuang.novel.data.dao.ArticleInfo;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 public class DirectoryActivity extends Activity
         implements SwipeRefreshLayout.OnRefreshListener, LoaderManager.LoaderCallbacks<Cursor> {
     public static final String  TAG                  = DirectoryActivity.class.getName();
-    public static final Pattern ARTICLE_HREF_PATTERN = Pattern.compile("/5_5133/(\\d+).html", Pattern.CASE_INSENSITIVE);
-    public static final String  BASE_URL             = "http://www.biquge.com/5_5133/";
     public static final int     ARTICLE_LOADER       = 0;
     @InjectView(R.id.layout_titles)
     SwipeRefreshLayout layoutTitles;
@@ -86,6 +80,57 @@ public class DirectoryActivity extends Activity
                 startActivity(intent);
             }
         });
+        registerForContextMenu(listViewTitles);
+    }
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        if (v.getId() == R.id.list_titles) {
+            menu.setHeaderTitle("下载");
+            menu.add(Menu.NONE, 0, 0, "下载本章");
+            menu.add(Menu.NONE, 1, 1, "下载之后所有章节");
+        }
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        ContextMenu.ContextMenuInfo contextMenuInfo = item.getMenuInfo();
+        if (contextMenuInfo instanceof AdapterView.AdapterContextMenuInfo) {
+            AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) contextMenuInfo;
+            Cursor cursor = ((SimpleCursorAdapter) listViewTitles.getAdapter()).getCursor();
+            cursor.moveToPosition(info.position);
+            switch (item.getItemId()) {
+                case 0:
+                    singleDownload(cursor);
+                    break;
+                case 1:
+                    do {
+                        singleDownload(cursor);
+                    } while (cursor.moveToNext());
+            }
+            return true;
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    private void singleDownload(Cursor cursor) {
+        final Article article = ArticleDataHelper.fromCursor(cursor);
+        requestQueue.add(new GBKRequest(article.getUrl(), new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                String content = novel.parseArticle(response);
+                article.setContent(content);
+                Uri uri = ArticleDataHelper.getInstance(AppContext.getContext()).insert(article);
+                Log.v(TAG, "Article uri: " + uri);
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                AppContext.showToast(DirectoryActivity.this,
+                                     article.getTitle() + " 下载失败，请稍后重试",
+                                     Toast.LENGTH_LONG);
+            }
+        }));
     }
 
     @Override
@@ -112,28 +157,16 @@ public class DirectoryActivity extends Activity
         }
     }
 
+    private INovel novel = new BenghuaiNovel();
+
     @Override
     public void onRefresh() {
         layoutTitles.setRefreshing(true);
 
-        requestQueue.add(new GBKRequest(BASE_URL, new Response.Listener<String>() {
+        requestQueue.add(new GBKRequest(BenghuaiNovel.BASE_URL, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
-
-                ArrayList<Article> articles = new ArrayList<Article>();
-                Document document = Jsoup.parse(response);
-                Elements dds = document.select("dd").select("a");
-                for (Element a : dds) {
-                    String href = a.attr("href");
-                    Matcher matcher = ARTICLE_HREF_PATTERN.matcher(href);
-                    if (matcher.matches()) {
-                        int id = Integer.parseInt(matcher.group(1));
-                        String title = a.text();
-                        String url = BASE_URL + id + ".html";
-                        Article article = new Article(id, title, url);
-                        articles.add(article);
-                    }
-                }
+                ArrayList<Article> articles = novel.parseHomePageToArticles(response);
 
                 ArticleDataHelper.getInstance(AppContext.getContext()).bulkInsert(articles);
 
@@ -178,7 +211,6 @@ public class DirectoryActivity extends Activity
             chapterNumber.setText(String.format("%04d", article.getId()));
             chapterTitle.setText(MessageFormat.format("{0}({1}%)", article.getTitle(), progress));
             progressBar.setProgress(progress);
-
         }
     }
 }
