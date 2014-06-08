@@ -12,5 +12,8 @@ import java.util.ArrayList;
  */
 public interface INovel {
     ArrayList<Article> parseHomePageToArticles(String response);
+
     String parseArticle(String response);
+
+    String getBaseUrl();
 }

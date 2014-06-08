@@ -1,6 +1,5 @@
 package com.chhuang.novel;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,8 +10,6 @@ import android.view.Window;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
-import butterknife.ButterKnife;
-import butterknife.InjectView;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -22,34 +19,32 @@ import com.chhuang.novel.data.GBKRequest;
 import com.chhuang.novel.data.articles.BenghuaiNovel;
 import com.chhuang.novel.data.articles.INovel;
 import com.chhuang.novel.data.dao.ArticleDataHelper;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.nodes.TextNode;
+import roboguice.activity.RoboActivity;
+import roboguice.inject.ContentView;
+import roboguice.inject.InjectView;
 
-public class ArticleActivity extends Activity implements SwipeRefreshLayout.OnRefreshListener {
+@ContentView(R.layout.activity_article)
+public class ArticleActivity extends RoboActivity implements SwipeRefreshLayout.OnRefreshListener {
     public static final String TAG = ArticleActivity.class.getName();
     @InjectView(R.id.layout_article)
     SwipeRefreshLayout layoutArticle;
     @InjectView(R.id.content)
     TextView           contentView;
     @InjectView(R.id.sroll_view_content)
-    ScrollView scrollView;
+    ScrollView         scrollView;
     private Article      article;
     private RequestQueue queue;
+    private INovel novel = new BenghuaiNovel();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.activity_article);
+        super.onCreate(savedInstanceState);
 
         init();
     }
 
     private void init() {
-        ButterKnife.inject(this);
-
         layoutArticle.setColorScheme(android.R.color.holo_blue_bright,
                                      android.R.color.holo_green_light,
                                      android.R.color.holo_orange_light,
@@ -76,8 +71,6 @@ public class ArticleActivity extends Activity implements SwipeRefreshLayout.OnRe
             }
         });
     }
-
-    private INovel novel = new BenghuaiNovel();
 
     @Override
     public void onRefresh() {

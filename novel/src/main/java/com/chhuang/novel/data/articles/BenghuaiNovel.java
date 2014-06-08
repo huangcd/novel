@@ -22,8 +22,13 @@ import java.util.regex.Pattern;
 public class BenghuaiNovel implements INovel {
     public static final  Pattern ARTICLE_HREF_PATTERN = Pattern.compile("/5_5133/(\\d+).html",
                                                                         Pattern.CASE_INSENSITIVE);
-    public static final  String  BASE_URL             = "http://www.biquge.com/5_5133/";
-    private final static String  TAG                  = BenghuaiNovel.class.getName();
+    private static final String BASE_URL = "http://www.biquge.com/5_5133/";
+    private final static String TAG      = BenghuaiNovel.class.getName();
+
+    @Override
+    public String getBaseUrl() {
+        return BASE_URL;
+    }
 
     @Override
     public ArrayList<Article> parseHomePageToArticles(String response) {

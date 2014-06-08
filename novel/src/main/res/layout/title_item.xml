@@ -1,51 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="100dp">
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1">
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
-
-            <TextView
-                android:layout_width="80dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/text_chapter"
-                android:textColor="@android:color/background_dark"
-                android:textStyle="bold"
-                android:textSize="30sp"
-                android:typeface="serif"
-                android:layout_marginTop="10dp" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/text_title"
-                android:textColor="@android:color/background_dark"
-                android:textSize="20sp"
-                android:typeface="sans"
-                android:layout_weight="1"
-                android:layout_gravity="bottom" />
-        </LinearLayout>
-
-        <ProgressBar
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/progress_article"
-            android:max="100"
-            android:layout_margin="4dp" />
-
-    </LinearLayout>
 
     <ImageView
         android:layout_width="40dp"
@@ -54,6 +12,46 @@
         android:layout_margin="10dp"
         android:contentDescription="@string/dummy_content"
         android:src="@android:drawable/btn_star"
-        android:layout_gravity="center" />
+        android:layout_gravity="center"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="true" />
 
-</LinearLayout>
+    <ProgressBar
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/progress_article"
+        android:max="100"
+        android:layout_margin="4dp"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@+id/image_status"
+        android:layout_alignParentLeft="true" />
+
+    <TextView
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/text_chapter"
+        android:textColor="@android:color/background_dark"
+        android:textStyle="bold"
+        android:textSize="25sp"
+        android:typeface="serif"
+        android:layout_marginTop="10dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_above="@+id/progress_article" />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/text_title"
+        android:textColor="@android:color/background_dark"
+        android:textSize="20sp"
+        android:typeface="sans"
+        android:layout_gravity="bottom"
+        android:layout_alignParentTop="false"
+        android:layout_above="@+id/progress_article"
+        android:layout_toRightOf="@+id/text_chapter"
+        android:layout_toLeftOf="@+id/image_status" />
+
+</RelativeLayout>

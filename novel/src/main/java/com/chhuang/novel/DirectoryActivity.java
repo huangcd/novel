@@ -1,6 +1,5 @@
 package com.chhuang.novel;
 
-import android.app.Activity;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
@@ -14,8 +13,6 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
-import butterknife.ButterKnife;
-import butterknife.InjectView;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -26,37 +23,36 @@ import com.chhuang.novel.data.articles.BenghuaiNovel;
 import com.chhuang.novel.data.articles.INovel;
 import com.chhuang.novel.data.dao.ArticleDataHelper;
 import com.chhuang.novel.data.dao.ArticleInfo;
+import roboguice.activity.RoboActivity;
+import roboguice.inject.ContentView;
+import roboguice.inject.InjectView;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 
 
-public class DirectoryActivity extends Activity
+@ContentView(R.layout.activity_directory)
+public class DirectoryActivity extends RoboActivity
         implements SwipeRefreshLayout.OnRefreshListener, LoaderManager.LoaderCallbacks<Cursor> {
-    public static final String  TAG                  = DirectoryActivity.class.getName();
-    public static final int     ARTICLE_LOADER       = 0;
+    public static final String TAG            = DirectoryActivity.class.getName();
+    public static final int    ARTICLE_LOADER = 0;
     @InjectView(R.id.layout_titles)
     SwipeRefreshLayout layoutTitles;
     @InjectView(R.id.list_titles)
     ListView           listViewTitles;
-    private RequestQueue          requestQueue;
-    private SimpleCursorAdapter   articleSimpleCursorAdapter;
+    private RequestQueue        requestQueue;
+    private SimpleCursorAdapter articleSimpleCursorAdapter;
+    private INovel novel = new BenghuaiNovel();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-
-        setContentView(R.layout.activity_directory);
+        super.onCreate(savedInstanceState);
 
         init();
         getLoaderManager().initLoader(ARTICLE_LOADER, null, this);
     }
 
     private void init() {
-        ButterKnife.inject(this);
-
         layoutTitles.setOnRefreshListener(this);
         layoutTitles.setColorScheme(android.R.color.holo_blue_bright,
                                     android.R.color.holo_green_light,
@@ -74,6 +70,9 @@ public class DirectoryActivity extends Activity
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Cursor cursor = ((SimpleCursorAdapter) listViewTitles.getAdapter()).getCursor();
+                if (cursor == null) {
+                    return;
+                }
                 cursor.moveToPosition(position);
                 Article article = ArticleDataHelper.fromCursor(cursor);
                 Intent intent = new Intent(DirectoryActivity.this, ArticleActivity.class).putExtra("article", article);
@@ -157,13 +156,11 @@ public class DirectoryActivity extends Activity
         }
     }
 
-    private INovel novel = new BenghuaiNovel();
-
     @Override
     public void onRefresh() {
         layoutTitles.setRefreshing(true);
 
-        requestQueue.add(new GBKRequest(BenghuaiNovel.BASE_URL, new Response.Listener<String>() {
+        requestQueue.add(new GBKRequest(novel.getBaseUrl(), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 ArrayList<Article> articles = novel.parseHomePageToArticles(response);
@@ -209,7 +206,8 @@ public class DirectoryActivity extends Activity
             }
             final int progress = (int) (100 * article.getPercentage());
             chapterNumber.setText(String.format("%04d", article.getId()));
-            chapterTitle.setText(MessageFormat.format("{0}({1}%)", article.getTitle(), progress));
+            chapterTitle.setText(article.getTitle());
+            progressBar.setVisibility(View.VISIBLE);
             progressBar.setProgress(progress);
         }
     }
