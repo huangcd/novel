@@ -27,6 +27,7 @@ import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 
 
@@ -42,14 +43,15 @@ public class DirectoryActivity extends RoboActivity
     private RequestQueue        requestQueue;
     private SimpleCursorAdapter articleSimpleCursorAdapter;
     private INovel novel = new BenghuaiNovel();
+    private int lastVisitPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
 
-        init();
         getLoaderManager().initLoader(ARTICLE_LOADER, null, this);
+        init();
     }
 
     private void init() {
@@ -74,12 +76,22 @@ public class DirectoryActivity extends RoboActivity
                     return;
                 }
                 cursor.moveToPosition(position);
+                lastVisitPosition = position;
                 Article article = ArticleDataHelper.fromCursor(cursor);
                 Intent intent = new Intent(DirectoryActivity.this, ArticleActivity.class).putExtra("article", article);
                 startActivity(intent);
             }
         });
         registerForContextMenu(listViewTitles);
+    }
+
+    @Override
+    protected void onPause() {
+        getSharedPreferences(TAG, MODE_PRIVATE)
+                .edit()
+                .putInt("list_selection", lastVisitPosition)
+                .commit();
+        super.onPause();
     }
 
     @Override
@@ -153,6 +165,14 @@ public class DirectoryActivity extends RoboActivity
         articleSimpleCursorAdapter.changeCursor(data);
         if (data == null || data.getCount() == 0) {
             onRefresh();
+        } else {
+            final int lastVisitPosition = getSharedPreferences(TAG, MODE_PRIVATE).getInt("list_selection", 0);
+            listViewTitles.post(new Runnable() {
+                @Override
+                public void run() {
+                    listViewTitles.setSelection(lastVisitPosition);
+                }
+            });
         }
     }
 
@@ -183,6 +203,14 @@ public class DirectoryActivity extends RoboActivity
         articleSimpleCursorAdapter.changeCursor(null);
     }
 
+
+    private static class ViewHolder {
+        private TextView    chapterNumber;
+        private TextView    chapterTitle;
+        private ImageView   star;
+        private ProgressBar progressBar;
+    }
+
     private class ArticleCursorAdapter extends SimpleCursorAdapter {
         private ArticleCursorAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flags) {
             super(context, layout, c, from, to, flags);
@@ -190,25 +218,41 @@ public class DirectoryActivity extends RoboActivity
 
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
+            Log.d(TAG, "Cursor position: " + cursor.getPosition());
+            ViewHolder holder;
             if (view == null) {
                 LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 view = inflater.inflate(R.layout.title_item, null);
+                Log.v(TAG, "Init view holder");
+                holder = new ViewHolder();
+                holder.chapterNumber = (TextView) view.findViewById(R.id.text_chapter);
+                holder.chapterTitle = (TextView) view.findViewById(R.id.text_title);
+                holder.star = (ImageView) view.findViewById(R.id.image_status);
+                holder.progressBar = (ProgressBar) view.findViewById(R.id.progress_article);
+                view.setTag(holder);
+            } else {
+                holder = (ViewHolder) view.getTag();
             }
-            TextView chapterNumber = (TextView) view.findViewById(R.id.text_chapter);
-            TextView chapterTitle = (TextView) view.findViewById(R.id.text_title);
-            ImageView star = (ImageView) view.findViewById(R.id.image_status);
-            ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.progress_article);
+            if (holder == null) {
+                Log.v(TAG, "Init view holder");
+                holder = new ViewHolder();
+                holder.chapterNumber = (TextView) view.findViewById(R.id.text_chapter);
+                holder.chapterTitle = (TextView) view.findViewById(R.id.text_title);
+                holder.star = (ImageView) view.findViewById(R.id.image_status);
+                holder.progressBar = (ProgressBar) view.findViewById(R.id.progress_article);
+                view.setTag(holder);
+            }
             Article article = ArticleDataHelper.fromCursor(cursor);
             if (TextUtils.isEmpty(article.getContent())) {
-                star.setImageState(new int[]{android.R.attr.state_pressed}, false);
+                holder.star.setImageState(new int[]{android.R.attr.state_pressed}, false);
             } else {
-                star.setImageState(new int[]{android.R.attr.state_checked, android.R.attr.state_pressed}, false);
+                holder.star.setImageState(new int[]{android.R.attr.state_checked, android.R.attr.state_pressed}, false);
             }
             final int progress = (int) (100 * article.getPercentage());
-            chapterNumber.setText(String.format("%04d", article.getId()));
-            chapterTitle.setText(article.getTitle());
-            progressBar.setVisibility(View.VISIBLE);
-            progressBar.setProgress(progress);
+            holder.chapterNumber.setText(String.format("%04d", article.getId()));
+            holder.chapterTitle.setText(article.getTitle());
+            holder.progressBar.setVisibility(View.VISIBLE);
+            holder.progressBar.setProgress(progress);
         }
     }
 }
