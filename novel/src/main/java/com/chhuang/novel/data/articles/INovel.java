@@ -1,5 +1,7 @@
 package com.chhuang.novel.data.articles;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
 import com.chhuang.novel.data.Article;
 
 import java.util.ArrayList;
@@ -18,4 +20,13 @@ public interface INovel {
     String getBaseUrl();
 
     String getBookName();
+
+    INovelRequestFactory getFactory();
+
+    public interface INovelRequestFactory {
+        Request<String> create(
+                String url,
+                Response.Listener<String> responseListener,
+                Response.ErrorListener errorListener);
+    }
 }

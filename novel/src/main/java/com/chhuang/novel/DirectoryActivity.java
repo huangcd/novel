@@ -123,7 +123,7 @@ public class DirectoryActivity extends RoboActivity
 
     private void singleDownload(Cursor cursor) {
         final Article article = ArticleDataHelper.fromCursor(cursor);
-        AppContext.getContext().getQueue().add(new GBKRequest(article.getUrl(), new Response.Listener<String>() {
+        AppContext.getContext().getQueue().add(novel.getFactory().create(article.getUrl(), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 String content = novel.parseArticle(response);
@@ -154,7 +154,6 @@ public class DirectoryActivity extends RoboActivity
             default:
                 return null;
         }
-
     }
 
     @Override
@@ -177,7 +176,7 @@ public class DirectoryActivity extends RoboActivity
     public void onRefresh() {
         layoutTitles.setRefreshing(true);
 
-        AppContext.getContext().getQueue().add(new GBKRequest(novel.getBaseUrl(), new Response.Listener<String>() {
+        AppContext.getContext().getQueue().add(novel.getFactory().create(novel.getBaseUrl(), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 ArrayList<Article> articles = novel.parseHomePageToArticles(response);

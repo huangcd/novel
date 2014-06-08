@@ -77,7 +77,7 @@ public class ArticleActivity extends RoboActivity implements SwipeRefreshLayout.
     public void onRefresh() {
         layoutArticle.setRefreshing(true);
         final AppContext context = AppContext.getContext();
-        context.getQueue().add(new GBKRequest(article.getUrl(), new Response.Listener<String>() {
+        context.getQueue().add(novel.getFactory().create(article.getUrl(), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 String content = novel.parseArticle(response);

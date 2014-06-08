@@ -1,6 +1,9 @@
 package com.chhuang.novel.data.articles;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
 import com.chhuang.novel.data.Article;
+import com.chhuang.novel.data.GBKRequest;
 import com.google.inject.Singleton;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -24,6 +27,13 @@ public class BenghuaiNovel implements INovel {
                                                                         Pattern.CASE_INSENSITIVE);
     private static final String BASE_URL = "http://www.biquge.com/5_5133/";
     private final static String TAG      = BenghuaiNovel.class.getName();
+    private final static INovelRequestFactory factory = new INovelRequestFactory() {
+        @Override
+        public Request<String> create(
+                String url, Response.Listener<String> responseListener, Response.ErrorListener errorListener) {
+            return new GBKRequest(url, responseListener, errorListener);
+        }
+    };
 
     @Override
     public String getBaseUrl() {
@@ -33,6 +43,11 @@ public class BenghuaiNovel implements INovel {
     @Override
     public String getBookName() {
         return "崩坏世界的传奇大冒险";
+    }
+
+    @Override
+    public INovelRequestFactory getFactory() {
+        return factory;
     }
 
     @Override
