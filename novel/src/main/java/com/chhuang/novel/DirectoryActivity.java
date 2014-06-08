@@ -13,10 +13,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.Volley;
 import com.chhuang.novel.data.Article;
 import com.chhuang.novel.data.GBKRequest;
 import com.chhuang.novel.data.articles.BenghuaiNovel;
@@ -27,7 +25,6 @@ import roboguice.activity.RoboActivity;
 import roboguice.inject.ContentView;
 import roboguice.inject.InjectView;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 
 
@@ -40,7 +37,6 @@ public class DirectoryActivity extends RoboActivity
     SwipeRefreshLayout layoutTitles;
     @InjectView(R.id.list_titles)
     ListView           listViewTitles;
-    private RequestQueue        requestQueue;
     private SimpleCursorAdapter articleSimpleCursorAdapter;
     private INovel novel = new BenghuaiNovel();
     private int lastVisitPosition;
@@ -60,7 +56,6 @@ public class DirectoryActivity extends RoboActivity
                                     android.R.color.holo_green_light,
                                     android.R.color.holo_orange_light,
                                     android.R.color.holo_red_light);
-        requestQueue = Volley.newRequestQueue(this);
         articleSimpleCursorAdapter = new ArticleCursorAdapter(this,
                                                               R.layout.title_item,
                                                               null,
@@ -78,7 +73,9 @@ public class DirectoryActivity extends RoboActivity
                 cursor.moveToPosition(position);
                 lastVisitPosition = position;
                 Article article = ArticleDataHelper.fromCursor(cursor);
-                Intent intent = new Intent(DirectoryActivity.this, ArticleActivity.class).putExtra("article", article);
+                Intent intent = new Intent(DirectoryActivity.this, ArticleActivity.class)
+                        .putExtra("article", article)
+                        .putExtra("novel", novel.getClass().getCanonicalName());
                 startActivity(intent);
             }
         });
@@ -126,7 +123,7 @@ public class DirectoryActivity extends RoboActivity
 
     private void singleDownload(Cursor cursor) {
         final Article article = ArticleDataHelper.fromCursor(cursor);
-        requestQueue.add(new GBKRequest(article.getUrl(), new Response.Listener<String>() {
+        AppContext.getContext().getQueue().add(new GBKRequest(article.getUrl(), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 String content = novel.parseArticle(response);
@@ -180,7 +177,7 @@ public class DirectoryActivity extends RoboActivity
     public void onRefresh() {
         layoutTitles.setRefreshing(true);
 
-        requestQueue.add(new GBKRequest(novel.getBaseUrl(), new Response.Listener<String>() {
+        AppContext.getContext().getQueue().add(new GBKRequest(novel.getBaseUrl(), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 ArrayList<Article> articles = novel.parseHomePageToArticles(response);
@@ -218,7 +215,6 @@ public class DirectoryActivity extends RoboActivity
 
         @Override
         public void bindView(View view, Context context, Cursor cursor) {
-            Log.d(TAG, "Cursor position: " + cursor.getPosition());
             ViewHolder holder;
             if (view == null) {
                 LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -234,7 +230,7 @@ public class DirectoryActivity extends RoboActivity
                 holder = (ViewHolder) view.getTag();
             }
             if (holder == null) {
-                Log.v(TAG, "Init view holder");
+                Log.v(TAG, "Init view holder, backup");
                 holder = new ViewHolder();
                 holder.chapterNumber = (TextView) view.findViewById(R.id.text_chapter);
                 holder.chapterTitle = (TextView) view.findViewById(R.id.text_title);

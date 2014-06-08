@@ -43,6 +43,7 @@
 
     <TextView
         android:layout_width="0dp"
+        android:ellipsize="marquee"
         android:layout_height="wrap_content"
         android:id="@+id/text_title"
         android:textColor="@android:color/background_dark"

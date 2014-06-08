@@ -10,13 +10,10 @@ import android.view.Window;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.Volley;
 import com.chhuang.novel.data.Article;
 import com.chhuang.novel.data.GBKRequest;
-import com.chhuang.novel.data.articles.BenghuaiNovel;
 import com.chhuang.novel.data.articles.INovel;
 import com.chhuang.novel.data.dao.ArticleDataHelper;
 import roboguice.activity.RoboActivity;
@@ -32,9 +29,8 @@ public class ArticleActivity extends RoboActivity implements SwipeRefreshLayout.
     TextView           contentView;
     @InjectView(R.id.sroll_view_content)
     ScrollView         scrollView;
-    private Article      article;
-    private RequestQueue queue;
-    private INovel novel = new BenghuaiNovel();
+    private Article article;
+    private INovel  novel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +48,12 @@ public class ArticleActivity extends RoboActivity implements SwipeRefreshLayout.
         layoutArticle.setOnRefreshListener(this);
         Intent intent = getIntent();
         article = intent.getParcelableExtra("article");
-        queue = Volley.newRequestQueue(this);
+        try {
+            novel = (INovel) Class.forName(intent.getStringExtra("novel")).newInstance();
+        } catch (Exception e) {
+            Log.w(TAG, "Failed to create INovel instance", e);
+            finish();
+        }
 
         if (TextUtils.isEmpty(article.getContent())) {
             onRefresh();
@@ -75,14 +76,15 @@ public class ArticleActivity extends RoboActivity implements SwipeRefreshLayout.
     @Override
     public void onRefresh() {
         layoutArticle.setRefreshing(true);
-        queue.add(new GBKRequest(article.getUrl(), new Response.Listener<String>() {
+        final AppContext context = AppContext.getContext();
+        context.getQueue().add(new GBKRequest(article.getUrl(), new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 String content = novel.parseArticle(response);
                 contentView.setText(content);
                 layoutArticle.setRefreshing(false);
                 article.setContent(content);
-                Uri uri = ArticleDataHelper.getInstance(AppContext.getContext()).insert(article);
+                Uri uri = ArticleDataHelper.getInstance(context).insert(article);
                 Log.v(TAG, "Article uri: " + uri);
             }
         }, new Response.ErrorListener() {

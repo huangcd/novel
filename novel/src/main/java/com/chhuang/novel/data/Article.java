@@ -23,7 +23,6 @@ public class Article implements Parcelable {
             Article article = new Article(chapterNumber, title, url);
             article.setPercentage(source.readDouble());
             article.setContent((String) source.readValue(stringClassLoader));
-            article.setHasRead((Boolean) source.readValue(Boolean.class.getClassLoader()));
             article.setDateTime(source.readLong());
             return article;
         }
@@ -34,19 +33,17 @@ public class Article implements Parcelable {
         }
     };
     @ContentKey(key = PERCENTAGE)
-    private double  percentage;
+    private double percentage;
     @ContentKey(key = CONTENT)
-    private String  content;
+    private String content;
     @ContentKey(key = _ID)
-    private int     id;
+    private int    id;
     @ContentKey(key = TITLE)
-    private String  title;
+    private String title;
     @ContentKey(key = URL)
-    private String  url;
-    @ContentKey(key = HAS_READ)
-    private boolean hasRead;
+    private String url;
     @ContentKey(key = TIME)
-    private long    dateTime;
+    private long   dateTime;
 
     public Article() {
     }
@@ -64,17 +61,9 @@ public class Article implements Parcelable {
         dest.writeValue(url);
         dest.writeDouble(percentage);
         dest.writeValue(content);
-        dest.writeValue(hasRead);
         dest.writeLong(dateTime);
     }
 
-    public boolean isHasRead() {
-        return hasRead;
-    }
-
-    public void setHasRead(boolean hasRead) {
-        this.hasRead = hasRead;
-    }
 
     public double getPercentage() {
         return percentage;

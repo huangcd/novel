@@ -16,4 +16,6 @@ public interface INovel {
     String parseArticle(String response);
 
     String getBaseUrl();
+
+    String getBookName();
 }

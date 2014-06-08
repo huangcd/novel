@@ -31,6 +31,11 @@ public class BenghuaiNovel implements INovel {
     }
 
     @Override
+    public String getBookName() {
+        return "崩坏世界的传奇大冒险";
+    }
+
+    @Override
     public ArrayList<Article> parseHomePageToArticles(String response) {
         ArrayList<Article> articles = new ArrayList<Article>();
         Document document = Jsoup.parse(response);
