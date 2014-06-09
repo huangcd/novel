@@ -35,15 +35,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 @ContentView(R.layout.activity_directory)
 public class DirectoryActivity extends RoboActivity
         implements SwipeRefreshLayout.OnRefreshListener, LoaderManager.LoaderCallbacks<Cursor> {
-    public static final String TAG            = DirectoryActivity.class.getName();
+    public static final String TAG = DirectoryActivity.class.getName();
     @InjectView(R.id.layout_drawer)
-    DrawerLayout drawerLayout;
+    DrawerLayout       drawerLayout;
     @InjectView(R.id.layout_titles)
     SwipeRefreshLayout layoutTitles;
     @InjectView(R.id.list_titles)
     ListView           listViewTitles;
+    @InjectView(R.id.drawer_sidebar)
+    RelativeLayout     drawerSidebar;
     @InjectView(R.id.sidebar_list_view)
-    ListView     listViewSidebar;
+    ListView           listViewSidebar;
     private SimpleCursorAdapter articleAdapter;
     private INovel novel = new BenghuaiNovel();
     private int lastVisitPosition;
@@ -71,6 +73,12 @@ public class DirectoryActivity extends RoboActivity
             public void onDrawerOpened(View drawerView) {
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
+
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+                float moveFactor = (drawerSidebar.getWidth() * slideOffset);
+                layoutTitles.setTranslationX(moveFactor);
+            }
         };
         drawerLayout.setDrawerListener(drawerToggle);
         listViewSidebar.setAdapter(new ArrayAdapter<INovel>(this,
@@ -79,11 +87,17 @@ public class DirectoryActivity extends RoboActivity
         listViewSidebar.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                novel = (INovel) listViewSidebar.getAdapter().getItem(position);
+                final INovel newNovel = (INovel) listViewSidebar.getAdapter().getItem(position);
+                if (novel.equals(newNovel)) {
+                    return;
+                }
+                novel = newNovel;
+                Log.i(TAG, "Switch novel to " + novel);
                 getLoaderManager().initLoader(novel.hashCode(), null, DirectoryActivity.this);
             }
         });
 
+        novel = AppContext.registerNovels.get(0);
         getLoaderManager().initLoader(AppContext.registerNovels.get(0).hashCode(), null, this);
 
         layoutTitles.setOnRefreshListener(this);
@@ -121,7 +135,7 @@ public class DirectoryActivity extends RoboActivity
     protected void onPause() {
         getSharedPreferences(TAG, MODE_PRIVATE)
                 .edit()
-                .putInt("list_selection", lastVisitPosition)
+                .putInt(novel.getBookName() + "#list_selection", lastVisitPosition)
                 .commit();
         super.onPause();
     }
@@ -178,6 +192,7 @@ public class DirectoryActivity extends RoboActivity
                 novel.getFactory().create(article.getUrl(), responseListener, errorListener));
     }
 
+    // TODO bulkInsert for articles
     private void multipleDownload(Cursor cursor) {
         final List<Article> synchronizedArticleList = Collections.synchronizedList(new ArrayList<Article>());
         AtomicInteger taskCount = new AtomicInteger(0);
@@ -229,7 +244,9 @@ public class DirectoryActivity extends RoboActivity
         if (data == null || data.getCount() == 0) {
             onRefresh();
         } else {
-            final int lastVisitPosition = getSharedPreferences(TAG, MODE_PRIVATE).getInt("list_selection", 0);
+            final int lastVisitPosition = getSharedPreferences(TAG, MODE_PRIVATE)
+                    .getInt(novel.getBookName() + "#list_selection", 0);
+            Log.v(TAG, "Last visit position is " + lastVisitPosition);
             listViewTitles.post(new Runnable() {
                 @Override
                 public void run() {
