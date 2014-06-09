@@ -7,6 +7,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.chhuang.novel.data.articles.BenghuaiNovel;
 import com.chhuang.novel.data.articles.INovel;
+import com.chhuang.novel.data.articles.LingaoqimingNovel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ public class AppContext extends Application {
     public static final List<INovel> registerNovels = new ArrayList<INovel>() {
         {
             add(new BenghuaiNovel());
+            add(new LingaoqimingNovel());
         }
     };
     private static AppContext   context;

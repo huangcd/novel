@@ -21,7 +21,6 @@ import java.util.regex.Pattern;
  *
  * @author chhuang@microsoft.com
  */
-@Singleton
 public class BenghuaiNovel implements INovel {
     public static final  Pattern ARTICLE_HREF_PATTERN = Pattern.compile("/5_5133/(\\d+).html",
                                                                         Pattern.CASE_INSENSITIVE);

@@ -47,7 +47,7 @@ public class DirectoryActivity extends RoboActivity
     @InjectView(R.id.sidebar_list_view)
     ListView           listViewSidebar;
     private SimpleCursorAdapter articleAdapter;
-    private INovel novel = new BenghuaiNovel();
+    private INovel novel;
     private int lastVisitPosition;
 
     @Override
@@ -80,6 +80,7 @@ public class DirectoryActivity extends RoboActivity
                 layoutTitles.setTranslationX(moveFactor);
             }
         };
+
         drawerLayout.setDrawerListener(drawerToggle);
         listViewSidebar.setAdapter(new ArrayAdapter<INovel>(this,
                                                             android.R.layout.simple_list_item_1,
@@ -88,17 +89,22 @@ public class DirectoryActivity extends RoboActivity
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 final INovel newNovel = (INovel) listViewSidebar.getAdapter().getItem(position);
+                drawerLayout.closeDrawer(drawerSidebar);
                 if (novel.equals(newNovel)) {
                     return;
                 }
+                getSharedPreferences(TAG, MODE_PRIVATE)
+                        .edit()
+                        .putInt(novel.getBookName() + "#list_selection", lastVisitPosition)
+                        .commit();
                 novel = newNovel;
                 Log.i(TAG, "Switch novel to " + novel);
-                getLoaderManager().initLoader(novel.hashCode(), null, DirectoryActivity.this);
+                getLoaderManager().restartLoader(novel.hashCode(), null, DirectoryActivity.this);
             }
         });
 
         novel = AppContext.registerNovels.get(0);
-        getLoaderManager().initLoader(AppContext.registerNovels.get(0).hashCode(), null, this);
+        getLoaderManager().restartLoader(novel.hashCode(), null, this);
 
         layoutTitles.setOnRefreshListener(this);
         layoutTitles.setColorScheme(android.R.color.holo_blue_bright,
