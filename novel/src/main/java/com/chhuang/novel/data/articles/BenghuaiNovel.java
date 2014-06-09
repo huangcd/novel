@@ -41,6 +41,11 @@ public class BenghuaiNovel implements INovel {
     }
 
     @Override
+    public String toString() {
+        return getBookName();
+    }
+
+    @Override
     public String getBookName() {
         return "崩坏世界的传奇大冒险";
     }
@@ -63,6 +68,7 @@ public class BenghuaiNovel implements INovel {
                 String title = a.text();
                 String url = BASE_URL + id + ".html";
                 Article article = new Article(id, title, url);
+                article.setBookName(getBookName());
                 articles.add(article);
             }
         }

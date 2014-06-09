@@ -12,6 +12,7 @@ import static com.chhuang.novel.data.dao.ArticleInfo.*;
  *
  * @author chhuang@microsoft.com
  */
+@SuppressWarnings("UnusedDeclaration")
 public class Article implements Parcelable {
     public final static Creator<Article> CREATOR = new Creator<Article>() {
         @Override
@@ -24,6 +25,7 @@ public class Article implements Parcelable {
             article.setPercentage(source.readDouble());
             article.setContent((String) source.readValue(stringClassLoader));
             article.setDateTime(source.readLong());
+            article.setBookName((String) source.readValue(stringClassLoader));
             return article;
         }
 
@@ -32,11 +34,13 @@ public class Article implements Parcelable {
             return new Article[size];
         }
     };
+    @ContentKey(key = NOVEL_NAME)
+    private String bookName;
     @ContentKey(key = PERCENTAGE)
     private double percentage;
     @ContentKey(key = CONTENT)
     private String content;
-    @ContentKey(key = _ID)
+    @ContentKey(key = ID)
     private int    id;
     @ContentKey(key = TITLE)
     private String title;
@@ -54,6 +58,14 @@ public class Article implements Parcelable {
         this.url = url;
     }
 
+    public String getBookName() {
+        return bookName;
+    }
+
+    public void setBookName(String bookName) {
+        this.bookName = bookName;
+    }
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(id);
@@ -62,6 +74,7 @@ public class Article implements Parcelable {
         dest.writeDouble(percentage);
         dest.writeValue(content);
         dest.writeLong(dateTime);
+        dest.writeValue(bookName);
     }
 
 

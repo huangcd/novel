@@ -13,6 +13,7 @@ import android.util.Log;
 import com.chhuang.novel.AppContext;
 
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Logger;
 
 /**
  * Date: 2014/6/2
@@ -68,6 +69,7 @@ public class DataContentProvider extends ContentProvider {
     }
 
     private String matchTable(Uri uri) {
+        Log.v(TAG, "match table " + uri);
         switch (URI_MATCHER.match(uri)) {
             case ARTICLES:
             case ARTICLE:
@@ -94,11 +96,17 @@ public class DataContentProvider extends ContentProvider {
         DBLock.lock();
         try {
             String table = matchTable(uri);
+            int insert = 0;
             SQLiteDatabase db = getDBHelper().getWritableDatabase();
             db.beginTransaction();
             try {
                 for (ContentValues value : values) {
-                    db.insertWithOnConflict(table, null, value, SQLiteDatabase.CONFLICT_IGNORE);
+                    long result = db.insertWithOnConflict(table, null, value, SQLiteDatabase.CONFLICT_IGNORE);
+                    if (result == -1) {
+                        Log.w(TAG, "Failed to insert content value: " + value);
+                    } else {
+                        insert++;
+                    }
                 }
                 db.setTransactionSuccessful();
                 getContext().getContentResolver().notifyChange(uri, null);
@@ -107,7 +115,7 @@ public class DataContentProvider extends ContentProvider {
             } finally {
                 db.endTransaction();
             }
-            return values.length;
+            return insert;
         } finally {
             DBLock.unlock();
         }

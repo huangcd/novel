@@ -12,7 +12,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
     public static final  String DB_NAME = "article.db";
-    public static final int VERSION = 2;
+    public static final int VERSION = 3;
     private final static String TAG     = DatabaseHelper.class.getName();
 
     public DatabaseHelper(

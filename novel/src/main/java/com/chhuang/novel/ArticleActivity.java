@@ -13,7 +13,6 @@ import android.widget.Toast;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.chhuang.novel.data.Article;
-import com.chhuang.novel.data.GBKRequest;
 import com.chhuang.novel.data.articles.INovel;
 import com.chhuang.novel.data.dao.ArticleDataHelper;
 import roboguice.activity.RoboActivity;
