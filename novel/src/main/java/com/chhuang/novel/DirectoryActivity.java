@@ -18,7 +18,6 @@ import android.widget.*;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.chhuang.novel.data.Article;
-import com.chhuang.novel.data.articles.BenghuaiNovel;
 import com.chhuang.novel.data.articles.INovel;
 import com.chhuang.novel.data.dao.ArticleDataHelper;
 import com.chhuang.novel.data.dao.ArticleInfo;
@@ -47,8 +46,8 @@ public class DirectoryActivity extends RoboActivity
     @InjectView(R.id.sidebar_list_view)
     ListView           listViewSidebar;
     private SimpleCursorAdapter articleAdapter;
-    private INovel novel;
-    private int lastVisitPosition;
+    private INovel              novel;
+    private int                 lastVisitPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -266,22 +265,34 @@ public class DirectoryActivity extends RoboActivity
     public void onRefresh() {
         layoutTitles.setRefreshing(true);
 
-        AppContext.getContext().getQueue().add(novel.getFactory().create(novel.getBaseUrl(), new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                ArrayList<Article> articles = novel.parseHomePageToArticles(response);
+        AppContext.getContext().getQueue().add(novel.getFactory().create(novel.getBaseUrl(),
+                                                                         new Response.Listener<String>() {
+                                                                             @Override
+                                                                             public void onResponse(String response) {
+                                                                                 ArrayList<Article>
+                                                                                         articles
+                                                                                         = novel
+                                                                                         .parseHomePageToArticles(
+                                                                                                 response);
 
-                ArticleDataHelper.getInstance(AppContext.getContext()).bulkInsert(articles);
+                                                                                 ArticleDataHelper.getInstance(
+                                                                                         AppContext.getContext())
+                                                                                                  .bulkInsert(articles);
 
-                layoutTitles.setRefreshing(false);
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                AppContext.showToast(DirectoryActivity.this, "刷新失败，请稍后重试", Toast.LENGTH_LONG);
-                layoutTitles.setRefreshing(false);
-            }
-        }));
+                                                                                 layoutTitles.setRefreshing(false);
+                                                                             }
+                                                                         },
+                                                                         new Response.ErrorListener() {
+                                                                             @Override
+                                                                             public void onErrorResponse(VolleyError
+                                                                                                                 error) {
+                                                                                 AppContext.showToast
+                                                                                         (DirectoryActivity.this,
+                                                                                                      "刷新失败，请稍后重试",
+                                                                                                      Toast.LENGTH_LONG);
+                                                                                 layoutTitles.setRefreshing(false);
+                                                                             }
+                                                                         }));
     }
 
     @Override

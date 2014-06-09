@@ -9,13 +9,14 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:id="@+id/image_status"
-        android:layout_margin="10dp"
         android:contentDescription="@string/dummy_content"
         android:src="@android:drawable/btn_star"
         android:layout_gravity="center"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentTop="true" />
+        android:layout_alignParentTop="true"
+        android:layout_marginRight="30dp"
+        android:layout_marginLeft="10dp" />
 
     <ProgressBar
         style="?android:attr/progressBarStyleHorizontal"

@@ -14,8 +14,9 @@
     <ListView
         android:id="@+id/list_titles"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-    </ListView>
+        android:layout_height="match_parent"
+        android:fastScrollAlwaysVisible="true"
+        android:fastScrollEnabled="true" />
     </android.support.v4.widget.SwipeRefreshLayout>
 
     <include
