@@ -265,34 +265,23 @@ public class DirectoryActivity extends RoboActivity
     public void onRefresh() {
         layoutTitles.setRefreshing(true);
 
-        AppContext.getContext().getQueue().add(novel.getFactory().create(novel.getBaseUrl(),
-                                                                         new Response.Listener<String>() {
-                                                                             @Override
-                                                                             public void onResponse(String response) {
-                                                                                 ArrayList<Article>
-                                                                                         articles
-                                                                                         = novel
-                                                                                         .parseHomePageToArticles(
-                                                                                                 response);
-
-                                                                                 ArticleDataHelper.getInstance(
-                                                                                         AppContext.getContext())
-                                                                                                  .bulkInsert(articles);
-
-                                                                                 layoutTitles.setRefreshing(false);
-                                                                             }
-                                                                         },
-                                                                         new Response.ErrorListener() {
-                                                                             @Override
-                                                                             public void onErrorResponse(VolleyError
-                                                                                                                 error) {
-                                                                                 AppContext.showToast
-                                                                                         (DirectoryActivity.this,
-                                                                                                      "刷新失败，请稍后重试",
-                                                                                                      Toast.LENGTH_LONG);
-                                                                                 layoutTitles.setRefreshing(false);
-                                                                             }
-                                                                         }));
+        Response.Listener<String> responseListener = new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                ArrayList<Article> articles = novel.parseHomePageToArticles(response);
+                ArticleDataHelper.getInstance(AppContext.getContext()).bulkInsert(articles);
+                layoutTitles.setRefreshing(false);
+            }
+        };
+        Response.ErrorListener errorListener = new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                AppContext.showToast(DirectoryActivity.this, "刷新失败，请稍后重试", Toast.LENGTH_LONG);
+                layoutTitles.setRefreshing(false);
+            }
+        };
+        AppContext.getContext().getQueue().add(
+                novel.getFactory().create(novel.getBaseUrl(), responseListener, errorListener));
     }
 
     @Override
